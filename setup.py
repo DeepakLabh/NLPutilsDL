@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="NLPutils",
+    name="NLPutilsDL",
 
     # Version number (initial):
     version="0.1.0",
@@ -12,7 +12,7 @@ setup(
     author_email="labh111349@gmail.com",
 
     # Packages
-    packages=["NLPutils"],
+    packages=["NLPutilsDL"],
 
     # Include additional files into the package
     include_package_data=True,
