@@ -19,27 +19,35 @@ class data:
 	zero_vec = np.zeros(wordvec_dim)
 	rand_vec = np.random.random(wordvec_dim)
 	x = []
+
 	if self.file_type == 'json':
 	    import json
 	    data = json.load(open(self.file_path)) 
-	    for i in tqdm(xrange(len(data))):
-		paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()
-                sents = sent_tokenize(paragraph) if sent_tokenize_flag else [paragraph]
-                para_vec = []
-                for sent in sents:
-                    words = sent.strip().split()
-                    sent_vec = []
-                    for word in words:
-                        try:
-                            vec = self.collection.find_one({word_key:word})[vec_key]
-                        except:
-                            vec = zero_vec
-                        sent_vec.append(vec)
-                    sent_vec = sent_vec[:max_sent_len] if len(sent_vec)>max_sent_len else sent_vec+[zero_vec]*(max_sent_len-len(sent_vec))
-                
-                    para_vec.append(sent_vec)
-		if not sent_tokenize_flag: para_vec = para_vec[0]
-                else: para_vec = para_vec[:max_num_sents] if len(para_vec)>max_num_sents else para_vec+[zero_vec_sent]*(max_num_sents-len(para_vec))
-                x.append(para_vec)
+	if self.file_type == 'csv':
+	    import pandas as pd
+	    data = pd.read_csv(self.file_path)
+
+	for i in tqdm(xrange(len(data))):
+	    if self.file_type == 'json':
+	        paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()
+	    if self.file_type == 'csv':
+	        paragraph = data[sentence_field][i].encode('ascii','ignore').lower().strip()
+            sents = sent_tokenize(paragraph) if sent_tokenize_flag else [paragraph]
+            para_vec = []
+            for sent in sents:
+                words = sent.strip().split()
+                sent_vec = []
+                for word in words:
+                    try:
+                        vec = self.collection.find_one({word_key:word})[vec_key]
+                    except:
+                        vec = zero_vec
+                    sent_vec.append(vec)
+                sent_vec = sent_vec[:max_sent_len] if len(sent_vec)>max_sent_len else sent_vec+[zero_vec]*(max_sent_len-len(sent_vec))
+            
+                para_vec.append(sent_vec)
+	    if not sent_tokenize_flag: para_vec = para_vec[0]
+            else: para_vec = para_vec[:max_num_sents] if len(para_vec)>max_num_sents else para_vec+[zero_vec_sent]*(max_num_sents-len(para_vec))
+            x.append(para_vec)
 	else: raise Exception('only json format supported till now')
 	return np.array(x)
