@@ -23,9 +23,10 @@ class data:
 	if self.file_type == 'json':
 	    import json
 	    data = json.load(open(self.file_path)) 
-	if self.file_type == 'csv':
+	elif self.file_type == 'csv':
 	    import pandas as pd
 	    data = pd.read_csv(self.file_path)
+	else: raise Exception('only json/csv format supported till now')
         indexes = range(start_index, end_index) if end_index>0 else xrange(len(data))
 	for i in tqdm(indexes):
 	    if self.file_type == 'json':
@@ -49,5 +50,25 @@ class data:
 	    if not sent_tokenize_flag: para_vec = para_vec[0]
             else: para_vec = para_vec[:max_num_sents] if len(para_vec)>max_num_sents else para_vec+[zero_vec_sent]*(max_num_sents-len(para_vec))
             x.append(para_vec)
-	else: raise Exception('only json format supported till now')
 	return np.array(x)
+
+    def create_tfidf_vectors(self, sentence_field, start_index=0, end_index=0):
+        from NLPutilsDL import tfidf
+	tf = tfidf.tfidf(self.file_path)
+        if self.file_type == 'json':
+            import json
+            data = json.load(open(self.file_path))          
+        elif self.file_type == 'csv':
+            import pandas as pd                 
+            data = pd.read_csv(self.file_path)
+        else: raise Exception('only json/csv format supported till now')
+        indexes = range(start_index, end_index) if end_index>0 else xrange(len(data))
+	x = []
+        for i in tqdm(indexes):
+            if self.file_type == 'json':          
+                paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()     
+            if self.file_type == 'csv':
+                paragraph = data[sentence_field][i].encode('ascii','ignore').lower().strip()
+	    xx = map(lambda x: tf.vec(x), re.split(r'\W*', paragraph))
+	    x.append(xx)
+	return x
