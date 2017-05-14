@@ -22,7 +22,7 @@ class data:
 
 	if self.file_type == 'json':
 	    import json
-	    data = json.load(open(self.file_path)) 
+	    data = json.load(open(self.file_path))
 	elif self.file_type == 'csv':
 	    import pandas as pd
 	    data = pd.read_csv(self.file_path)
@@ -32,7 +32,7 @@ class data:
 	    if self.file_type == 'json':
 	        paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()
 	    if self.file_type == 'csv':
-	        paragraph = data[sentence_field][i].encode('ascii','ignore').lower().strip()
+	        paragraph = data[sentence_field][i].lower().strip()
             sents = sent_tokenize(paragraph) if sent_tokenize_flag else [paragraph]
             para_vec = []
             for sent in sents:
@@ -45,7 +45,7 @@ class data:
                         vec = zero_vec
                     sent_vec.append(vec)
                 sent_vec = sent_vec[:max_sent_len] if len(sent_vec)>max_sent_len else sent_vec+[zero_vec]*(max_sent_len-len(sent_vec))
-            
+
                 para_vec.append(sent_vec)
 	    if not sent_tokenize_flag: para_vec = para_vec[0]
             else: para_vec = para_vec[:max_num_sents] if len(para_vec)>max_num_sents else para_vec+[zero_vec_sent]*(max_num_sents-len(para_vec))
@@ -57,16 +57,16 @@ class data:
 	tf = tfidf.tfidf(self.file_path)
         if self.file_type == 'json':
             import json
-            data = json.load(open(self.file_path))          
+            data = json.load(open(self.file_path))
         elif self.file_type == 'csv':
-            import pandas as pd                 
+            import pandas as pd
             data = pd.read_csv(self.file_path)
         else: raise Exception('only json/csv format supported till now')
         indexes = range(start_index, end_index) if end_index>0 else xrange(len(data))
 	x = []
         for i in tqdm(indexes):
-            if self.file_type == 'json':          
-                paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()     
+            if self.file_type == 'json':
+                paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()
             if self.file_type == 'csv':
                 paragraph = data[sentence_field][i].encode('ascii','ignore').lower().strip()
 	    xx = map(lambda x: tf.vec(x), re.split(r'\W*', paragraph))
