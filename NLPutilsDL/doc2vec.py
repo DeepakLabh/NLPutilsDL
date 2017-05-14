@@ -12,7 +12,7 @@ class data:
 	self.file_type = file_type
 	self.collection = collection
 
-    def create_vectors(self, sentence_field, word_key, vec_key, max_sent_len = 40, max_num_sents = 10, wordvec_dim = 300, sent_tokenize_flag = True):
+    def create_vectors(self, sentence_field, word_key, vec_key, max_sent_len = 40, max_num_sents = 10, wordvec_dim = 300, sent_tokenize_flag = True, start_index=0, end_index=0):
         ''' --->> create_vectors('text', '_id', 'vec', 10, 5, 300)
 	    --->> collection.find_one({woed_key:vec_key})[vec_key] --> mongo collection object query fields	'''
 	zero_vec_sent = np.zeros((max_sent_len,wordvec_dim))
@@ -26,8 +26,8 @@ class data:
 	if self.file_type == 'csv':
 	    import pandas as pd
 	    data = pd.read_csv(self.file_path)
-
-	for i in tqdm(xrange(len(data))):
+        indexes = range(start_index, end_index) if end_index>0 else xrange(len(data))
+	for i in tqdm(indexes):
 	    if self.file_type == 'json':
 	        paragraph = json.loads(data[i])[sentence_field].encode('ascii','ignore').lower().strip()
 	    if self.file_type == 'csv':
